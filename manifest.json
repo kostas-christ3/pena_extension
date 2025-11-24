@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Pena AI",
+  "version": "0.1.0",
+  "description": "Select text on any page and transform it using your LLM backend.",
+  "permissions": [
+    "contextMenus",
+    "scripting",
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://blinko-brain.onrender.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html"
+}

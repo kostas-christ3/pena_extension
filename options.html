@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LLM Transformer – Options</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        margin: 16px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 6px 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+      button {
+        margin-top: 12px;
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+      small {
+        display: block;
+        margin-top: 4px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>LLM Transformer – Options</h1>
+
+    <div>
+      <label for="apiBaseUrl">API base URL</label>
+      <input
+        id="apiBaseUrl"
+        type="text"
+        placeholder="http://localhost:8000"
+      />
+      <small>
+        For local development: <code>http://localhost:8000</code><br />
+        For production: <code>https://api.yourdomain.com</code>
+      </small>
+      <button id="save">Save</button>
+    </div>
+
+    <p id="status" style="margin-top: 10px; color: green;"></p>
+
+    <script src="options.js"></script>
+  </body>
+</html>
