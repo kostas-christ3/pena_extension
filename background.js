@@ -17,13 +17,15 @@ function getConfig(callback) {
 function mapActionToTransformationType(action) {
   switch (action) {
     case "fix":
-      return "improve";          // TransformationType.IMPROVE
+      return "improve";
     case "translate":
-      return "translate_greek";  // TransformationType.TRANSLATE_GREEK
+      return "translate_greek";
     case "shorten":
-      return "shorten";          // TransformationType.SHORTEN
+      return "shorten";
     case "lengthen":
-      return "lengthen";         // TransformationType.LENGTHEN
+      return "lengthen";
+    case "professional":          // NEW
+      return "professional";      // NEW transformation type
     default:
       return "improve";
   }
@@ -33,7 +35,7 @@ function mapActionToTransformationType(action) {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "llm-transform-text",
-    title: "Pena AI – Improve text",
+    title: "Pena AI – Improve text ✍️",
     contexts: ["selection"],
   });
 });
@@ -90,6 +92,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           return;
         }
 
+        // Out of credits → show in-place popup instead of global error
+        if (err.isNoCredits) {
+          chrome.tabs.sendMessage(tabId, {
+            type: "SHOW_NO_CREDITS",
+            dashboardUrl: `${webBaseUrl}/dashboard`, // dashboard where user can buy more credits
+          });
+          sendResponse && sendResponse({ success: false });
+          return;
+        }
+
         chrome.tabs.sendMessage(tabId, {
           type: "SHOW_ERROR",
           message: err.message || "API error",
@@ -133,10 +145,16 @@ function callTransformApiWithType(apiBaseUrl, text, uiAction, callback) {
       if (!res.ok) {
         let errorMessage = `API error ${res.status}`;
         let isAuthError = false;
+        let isNoCredits = false;
 
         if (res.status === 401 || res.status === 403) {
           isAuthError = true;
           errorMessage = "Authentication required. Please log in.";
+        }
+
+        if (res.status === 402) {
+          isNoCredits = true;
+          errorMessage = "You’ve run out of Pena AI credits.";
         }
 
         try {
@@ -148,6 +166,7 @@ function callTransformApiWithType(apiBaseUrl, text, uiAction, callback) {
 
         const error = new Error(errorMessage);
         error.isAuthError = isAuthError;
+        error.isNoCredits = isNoCredits;
         throw error;
       }
       return res.json();
@@ -172,6 +191,7 @@ function callTransformApiWithType(apiBaseUrl, text, uiAction, callback) {
       callback({
         message: err.message || "Unknown error",
         isAuthError: err.isAuthError || false,
+        isNoCredits: err.isNoCredits || false,
       });
     });
 }
